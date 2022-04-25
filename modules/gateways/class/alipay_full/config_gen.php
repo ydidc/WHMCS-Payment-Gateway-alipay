@@ -2,14 +2,21 @@
 if (!defined("WHMCS")) {
     die("This file cannot be accessed directly");
 }
-
+include("../../../init.php");
+include("../../../includes/functions.php");
+include("../../../includes/gatewayfunctions.php");
+include("../../../includes/invoicefunctions.php");
 
 use Illuminate\Database\Capsule\Manager as Capsule;
 
 class alipayfull_config{
-    
+
+
+
     function get_configuration (){
-        
+            $gatewayModule = "alipay_full"; # Enter your gateway module name here replacing template
+
+$gatewayParams = getGatewayVariables($gatewayModule);
         global $_ADMINLANG, $CONFIG;
         $type = Capsule::table("tblpaymentgateways")->where("gateway","alipay_full")->where("setting","apitype")->first();
         $skintype = Capsule::table("tblpaymentgateways")->where("gateway","alipay_full")->where("setting","skintype")->first();
@@ -24,7 +31,7 @@ class alipayfull_config{
                 ]
             ];
         } else {
-            if ($type->value === "1" || $type->value === "2") {
+            if ($gatewayParams['apitype'] === "1" || $gatewayParams['apitype'] === "2") {
                 $extra_config = [
                     "seller_email" => ["FriendlyName" => "卖家支付宝帐户", "Type" => "text", "Size" => "50","Description" => "需要申请支付宝商家集成", ],
                     "partnerID" => ["FriendlyName" => "合作伙伴ID", "Type" => "text", "Size" => "50","Description" => "到你的支付宝商家后台查找", ],
@@ -37,7 +44,7 @@ class alipayfull_config{
                         ],
                     ]
                 ];
-                if ($type->value === "2") {
+                if ($gatewayParams['apitype'] === "2") {
                     $extra_config["extra_notice"] =  [
                         'FriendlyName' => '',
                         'Type' => 'dropdown',
@@ -46,7 +53,7 @@ class alipayfull_config{
                             ],
                         ];
                 }
-            } elseif ($type->value === "3") {
+            } elseif ($gatewayParams['apitype'] === "3") {
                     $extra_config = [
                         "app_id" => ["FriendlyName" => "应用ID (APPID)", "Type" => "text", "Size" => "60"],
                         "alipay_key" => ["FriendlyName" => "支付宝公钥", "Type" => "textarea",  'Rows' => '10', 'Cols' => '60' , 'Value'=>'MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAlagtk1bbiFdKw/ADO8y7ra6wbHyPOwSY5V9sir/rPWd/7H+vw8RAHadJWM0HExZRSU+zBhgbGV4uLVbSoBTSemuubBdeANHE2jeE8iOit8oJdSrqEr64Ls7YtUsHYCd1LRwt2j+guG+LTigpPOvKXgD79GRCy9Nx2WOVcHda6ZaO4WP1+M9oPogLgnJBO8Dwifv22pVgIruzEn/LRYoDeUNdJTHm35we1XECXnBsInj9rVOv+MPgByAyqyD70qFNfO2N2Q2RBxvJVwJsjDZgEDDkeaxFmc/qHmZaJSfZwcryst2aWyAdkvFUtaD9QmBdt30fZ796OekwYQITCLwt7QIDAQAB'],
@@ -78,7 +85,7 @@ class alipayfull_config{
                 ],
             ]
         ];
-        if ($skintype->value === "2"){
+        if ($gatewayParams['skintype'] === "2"){
             $base_config = array_merge($base_config,[
                 "customhtml" => [
                 'FriendlyName' => '自定义html',
